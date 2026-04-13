@@ -1,7 +1,11 @@
 #!/bin/bash
 cd /home/z/my-project
-export NODE_OPTIONS="--max-old-space-size=4096"
+
+# Install dependencies
 bun install
-bunx prisma generate
-bunx prisma db push
-exec npx next dev -p 3000 -H 0.0.0.0
+
+# Push database schema
+bun run db:push
+
+# Start the dev server (keep running)
+NODE_OPTIONS="--max-old-space-size=256" bun run dev

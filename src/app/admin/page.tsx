@@ -22,6 +22,7 @@ import {
   BarChart3,
   Target,
   Layers,
+  Mail,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -205,7 +206,7 @@ interface Team {
   name: string;
   logo: string | null;
   city: string | null;
-  category: string | null;
+  contact: string | null;
 }
 
 interface UserInfo {
@@ -399,7 +400,7 @@ export default function AdminPage() {
       standing: { category: 'primera-a', played: 0, won: 0, drawn: 0, lost: 0, goalsFor: 0, goalsAgainst: 0, points: 0, order: 0, active: true },
       topScorer: { category: 'primera-a', goals: 0, assists: 0, order: 0, active: true },
       resolution: { type: 'resolucion', number: '', active: true },
-      team: { name: '', logo: '', city: '', category: 'primera-a' },
+      team: { name: '', logo: '', city: '', contact: '' },
     };
 
     setAddForm(defaults[type] || {});
@@ -1323,60 +1324,13 @@ export default function AdminPage() {
                 </div>
               )}
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Ciudad</Label>
-                <Input value={form.city as string || ''} onChange={(e) => handleChange('city', e.target.value)} />
-              </div>
-              <div className="space-y-2">
-                <Label>Categoría</Label>
-                <Select value={form.category as string || 'primera-a'} onValueChange={(v) => handleChange('category', v)}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="primera-a">Primera A</SelectItem>
-                    <SelectItem value="primera-b">Primera B</SelectItem>
-                    <SelectItem value="sub-20">Sub-20</SelectItem>
-                    <SelectItem value="sub-17">Sub-17</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-          </>
-        );
-      case 'team':
-        return (
-          <>
             <div className="space-y-2">
-              <Label>Nombre del Club</Label>
-              <Input value={form.name as string || ''} onChange={(e) => handleChange('name', e.target.value)} />
+              <Label>Ciudad</Label>
+              <Input value={form.city as string || ''} onChange={(e) => handleChange('city', e.target.value)} />
             </div>
             <div className="space-y-2">
-              <Label>Logo (URL)</Label>
-              <Input value={form.logo as string || ''} onChange={(e) => handleChange('logo', e.target.value)} placeholder="https://..." />
-              {form.logo && (
-                <div className="mt-2 flex items-center gap-3">
-                  <img src={form.logo as string} alt="Preview" className="h-12 w-12 object-contain rounded border p-1" />
-                  <span className="text-xs text-gray-500">Vista previa del escudo</span>
-                </div>
-              )}
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Ciudad</Label>
-                <Input value={form.city as string || ''} onChange={(e) => handleChange('city', e.target.value)} />
-              </div>
-              <div className="space-y-2">
-                <Label>Categoría</Label>
-                <Select value={form.category as string || 'primera-a'} onValueChange={(v) => handleChange('category', v)}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="primera-a">Primera A</SelectItem>
-                    <SelectItem value="primera-b">Primera B</SelectItem>
-                    <SelectItem value="sub-20">Sub-20</SelectItem>
-                    <SelectItem value="sub-17">Sub-17</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+              <Label>Contacto (Email)</Label>
+              <Input type="email" value={form.contact as string || ''} onChange={(e) => handleChange('contact', e.target.value)} placeholder="club@ejemplo.com" />
             </div>
           </>
         );
@@ -1669,7 +1623,7 @@ export default function AdminPage() {
                 <div className="flex-1 min-w-0">
                   <h3 className="font-bold truncate">{t.name}</h3>
                   {t.city && <p className="text-sm text-gray-500 flex items-center gap-1"><MapPin className="h-3 w-3" />{t.city}</p>}
-                  {t.category && <Badge variant="outline" className="mt-1">{t.category}</Badge>}
+                  {t.contact && <p className="text-sm text-gray-500 flex items-center gap-1"><Mail className="h-3 w-3" />{t.contact}</p>}
                 </div>
               </div>
               <div className="flex gap-2">

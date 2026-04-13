@@ -7,13 +7,11 @@ import {
   Shield,
   Search,
   MapPin,
-  Trophy,
+  Mail,
   Loader2,
-  ExternalLink,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 
 // Tipo que viene de la API /api/public/teams
 interface Team {
@@ -21,62 +19,13 @@ interface Team {
   name: string;
   logo: string | null;
   city: string | null;
-  category: string | null;
+  contact: string | null;
 }
-
-// Mapeo de categoría de la BD → etiqueta legible
-const categoryLabels: Record<string, string> = {
-  "primera-a": "Primera A",
-  "primera-b": "Primera B",
-  "sub-20": "Sub-20",
-  "sub-17": "Sub-17",
-  juvenil: "Juvenil",
-  infantil: "Infantil",
-  adulto: "Adulto",
-};
-
-// Colores badge por categoría
-const getCategoryColor = (category: string | null) => {
-  const colors: Record<string, string> = {
-    "primera-a": "bg-green-100 text-green-700 border-green-200",
-    "Primera A": "bg-green-100 text-green-700 border-green-200",
-    "primera-b": "bg-blue-100 text-blue-700 border-blue-200",
-    "Primera B": "bg-blue-100 text-blue-700 border-blue-200",
-    juvenil: "bg-amber-100 text-amber-700 border-amber-200",
-    Juvenil: "bg-amber-100 text-amber-700 border-amber-200",
-    infantil: "bg-purple-100 text-purple-700 border-purple-200",
-    Infantil: "bg-purple-100 text-purple-700 border-purple-200",
-    "sub-20": "bg-cyan-100 text-cyan-700 border-cyan-200",
-    "sub-17": "bg-pink-100 text-pink-700 border-pink-200",
-    adulto: "bg-green-100 text-green-700 border-green-200",
-  };
-  return colors[category || ""] || "bg-gray-100 text-gray-700 border-gray-200";
-};
-
-// Gradiente decorativo por categoría
-const getCategoryGradient = (category: string | null) => {
-  const gradients: Record<string, string> = {
-    "primera-a": "from-green-500 to-emerald-600",
-    "primera-b": "from-blue-500 to-indigo-600",
-    juvenil: "from-amber-400 to-orange-500",
-    infantil: "from-purple-400 to-pink-500",
-    "sub-20": "from-cyan-400 to-teal-500",
-    "sub-17": "from-pink-400 to-rose-500",
-    adulto: "from-green-500 to-emerald-600",
-  };
-  return gradients[category || ""] || "from-green-500 to-emerald-600";
-};
-
-const formatCategory = (category: string | null) => {
-  if (!category) return "Sin categoría";
-  return categoryLabels[category] || category;
-};
 
 export default function ClubesPage() {
   const [teams, setTeams] = useState<Team[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("todos");
 
   // Fetch teams from API
   useEffect(() => {
@@ -96,30 +45,20 @@ export default function ClubesPage() {
     fetchTeams();
   }, []);
 
-  // Categorías únicas para el filtro
-  const categories = [
-    "todos",
-    ...Array.from(
-      new Set(teams.map((t) => t.category).filter(Boolean) as string[])
-    ),
-  ];
-
   // Filtrar clubes
   const filteredClubs = teams.filter((team) => {
+    const term = searchTerm.toLowerCase();
     const matchesSearch =
-      team.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (team.city || "").toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory =
-      selectedCategory === "todos" || team.category === selectedCategory;
-    return matchesSearch && matchesCategory;
+      team.name.toLowerCase().includes(term) ||
+      (team.city || "").toLowerCase().includes(term) ||
+      (team.contact || "").toLowerCase().includes(term);
+    return matchesSearch;
   });
 
   // Stats dinámicas
   const totalClubs = teams.length;
   const uniqueCities = new Set(teams.map((t) => t.city).filter(Boolean)).size;
-  const uniqueCategories = new Set(
-    teams.map((t) => t.category).filter(Boolean)
-  ).size;
+  const withContact = teams.filter((t) => t.contact).length;
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
@@ -155,7 +94,7 @@ export default function ClubesPage() {
         ) : (
           <>
             {/* Estadísticas */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
               <Card className="shadow-lg border-0 bg-gradient-to-br from-white to-green-50">
                 <CardContent className="p-4 text-center">
                   <Shield className="h-8 w-8 text-green-600 mx-auto mb-2" />
@@ -163,15 +102,6 @@ export default function ClubesPage() {
                     {totalClubs}
                   </div>
                   <div className="text-sm text-gray-600">Clubes Activos</div>
-                </CardContent>
-              </Card>
-              <Card className="shadow-lg border-0 bg-gradient-to-br from-white to-blue-50">
-                <CardContent className="p-4 text-center">
-                  <Trophy className="h-8 w-8 text-blue-600 mx-auto mb-2" />
-                  <div className="text-2xl font-bold text-gray-800">
-                    {uniqueCategories}
-                  </div>
-                  <div className="text-sm text-gray-600">Categorías</div>
                 </CardContent>
               </Card>
               <Card className="shadow-lg border-0 bg-gradient-to-br from-white to-purple-50">
@@ -185,48 +115,26 @@ export default function ClubesPage() {
               </Card>
               <Card className="shadow-lg border-0 bg-gradient-to-br from-white to-amber-50">
                 <CardContent className="p-4 text-center">
-                  <ExternalLink className="h-8 w-8 text-amber-600 mx-auto mb-2" />
+                  <Mail className="h-8 w-8 text-amber-600 mx-auto mb-2" />
                   <div className="text-2xl font-bold text-gray-800">
-                    {teams.filter((t) => t.logo).length}
+                    {withContact}
                   </div>
-                  <div className="text-sm text-gray-600">Con Escudo</div>
+                  <div className="text-sm text-gray-600">Con Contacto</div>
                 </CardContent>
               </Card>
             </div>
 
-            {/* Barra de búsqueda y filtros */}
+            {/* Barra de búsqueda */}
             <Card className="mb-6 shadow-lg border-0">
               <CardContent className="p-4">
-                <div className="flex flex-col md:flex-row gap-4">
-                  {/* Búsqueda */}
-                  <div className="flex-1 relative">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-                    <Input
-                      placeholder="Buscar clubes por nombre o municipio..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-10"
-                    />
-                  </div>
-
-                  {/* Filtro por categoría */}
-                  <div className="flex flex-wrap gap-2">
-                    {categories.map((category) => (
-                      <button
-                        key={category}
-                        onClick={() => setSelectedCategory(category)}
-                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                          selectedCategory === category
-                            ? "bg-green-600 text-white shadow-md"
-                            : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                        }`}
-                      >
-                        {category === "todos"
-                          ? "Todos"
-                          : formatCategory(category)}
-                      </button>
-                    ))}
-                  </div>
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <Input
+                    placeholder="Buscar clubes por nombre, municipio o contacto..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10"
+                  />
                 </div>
               </CardContent>
             </Card>
@@ -251,7 +159,7 @@ export default function ClubesPage() {
                         No se encontraron clubes
                       </h3>
                       <p className="text-gray-400 text-sm">
-                        Intenta con otro término de búsqueda o categoría
+                        Intenta con otro término de búsqueda
                       </p>
                     </>
                   )}
@@ -265,15 +173,11 @@ export default function ClubesPage() {
                     className="shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group border-0 hover:-translate-y-1"
                   >
                     <CardContent className="p-0">
-                      {/* Barra decorativa con gradiente de categoría */}
-                      <div
-                        className={`h-2 bg-gradient-to-r ${getCategoryGradient(
-                          team.category
-                        )}`}
-                      />
+                      {/* Barra decorativa */}
+                      <div className="h-2 bg-gradient-to-r from-green-500 to-emerald-600" />
 
                       <div className="p-4">
-                        {/* Header: Logo + Badge */}
+                        {/* Header: Logo */}
                         <div className="flex items-start justify-between mb-3">
                           <div className="w-14 h-14 rounded-xl bg-green-50 border-2 border-green-100 flex items-center justify-center flex-shrink-0 overflow-hidden group-hover:border-green-300 transition-colors shadow-sm">
                             {team.logo ? (
@@ -286,14 +190,6 @@ export default function ClubesPage() {
                               <Shield className="h-7 w-7 text-green-400" />
                             )}
                           </div>
-                          <Badge
-                            className={`${getCategoryColor(
-                              team.category
-                            )} text-xs font-medium`}
-                            variant="secondary"
-                          >
-                            {formatCategory(team.category)}
-                          </Badge>
                         </div>
 
                         {/* Nombre del club */}
@@ -301,7 +197,7 @@ export default function ClubesPage() {
                           {team.name}
                         </h3>
 
-                        {/* Info: Ciudad y Categoría */}
+                        {/* Info: Ciudad y Contacto */}
                         <div className="space-y-1.5 text-sm text-gray-600">
                           {team.city && (
                             <div className="flex items-center gap-2">
@@ -309,10 +205,15 @@ export default function ClubesPage() {
                               <span>{team.city}</span>
                             </div>
                           )}
-                          {team.category && (
+                          {team.contact && (
                             <div className="flex items-center gap-2">
-                              <Trophy className="h-3.5 w-3.5 text-gray-400 flex-shrink-0" />
-                              <span>{formatCategory(team.category)}</span>
+                              <Mail className="h-3.5 w-3.5 text-gray-400 flex-shrink-0" />
+                              <a
+                                href={`mailto:${team.contact}`}
+                                className="text-green-700 hover:text-green-900 hover:underline transition-colors"
+                              >
+                                {team.contact}
+                              </a>
                             </div>
                           )}
                         </div>

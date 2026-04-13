@@ -18,7 +18,7 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { name, logo, city, category } = body;
+    const { name, logo, city, contact } = body;
 
     if (!name) {
       return NextResponse.json({ error: 'El nombre es requerido' }, { status: 400 });
@@ -29,7 +29,7 @@ export async function POST(request: Request) {
         name,
         logo: logo || null,
         city: city || null,
-        category: category || null,
+        contact: contact || null,
       },
     });
 

@@ -9,7 +9,7 @@ export async function PUT(
   try {
     const { id } = await params;
     const body = await request.json();
-    const { name, logo, city, category } = body;
+    const { name, logo, city, contact } = body;
 
     if (!name) {
       return NextResponse.json({ error: 'El nombre es requerido' }, { status: 400 });
@@ -21,7 +21,7 @@ export async function PUT(
         name,
         logo: logo || null,
         city: city || null,
-        category: category || null,
+        contact: contact || null,
       },
     });
 
